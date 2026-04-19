@@ -9,6 +9,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/itsmeadarsh2008/backlit-kbd"
+Source = "https://github.com/itsmeadarsh2008/backlit-kbd"
+Issues = "https://github.com/itsmeadarsh2008/backlit-kbd/issues"
+
 [project.optional-dependencies]
 dev = [
 	"pytest>=8.0.0",
