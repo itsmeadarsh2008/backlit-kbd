@@ -9,140 +9,274 @@
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-yellow?logo=buymeacoffee)](https://buymeacoffee.com/itsmeadarsh)
 [![Sponsor](https://img.shields.io/badge/GitHub%20Sponsors-support-pink?logo=githubsponsors)](https://github.com/sponsors/itsmeadarsh2008)
 
-A beginner-friendly Python package for controlling keyboard backlight devices.
+Beginner-friendly Python package to control keyboard backlight brightness.
 
-Works on Linux laptops with sysfs backlight, and on any system with a mock backend for safe testing and learning. No hardware required.
+It supports:
+- Real Linux keyboard backlight devices (auto-discovered from sysfs)
+- A mock backend for safe testing without touching laptop hardware
 
-## Features
+## What This Means
 
-- Control keyboard backlight brightness (set, percent, on/off)
-- Notification-style blinking (sync and async)
-- Background notification manager
-- Mock backend for development/testing (no hardware needed)
-- CLI and Python API
-- Example scripts for experimentation
+- If you use `--mock`, commands run in memory only (safe for learning).
+- If you do not use `--mock`, the package tries real hardware automatically.
+- You usually do not need `--device-path`.
 
 ## Installation
 
-Install locally:
-
-```bash
-pip install -e .
-```
-
-Install with developer dependencies:
-
-```bash
-pip install -e .[dev]
-```
-
-Install from PyPI:
+Step 1: Install from PyPI
 
 ```bash
 pip install backlit-kbd
 ```
 
+Step 2 (optional): Install local editable version for development
+
+```bash
+pip install -e .
+```
+
+Step 3 (optional): Install dev dependencies
+
+```bash
+pip install -e .[dev]
+```
+
 ## Quick Start (Python)
+
+Step 1: Import
 
 ```python
 from backlit_kbd import NotificationBlinker, create_controller
+```
 
-# Always use fallback_to_mock=True for safe testing!
+Step 2: Create a safe controller (mock fallback)
+
+```python
 controller = create_controller(fallback_to_mock=True)
+```
 
+Step 3: Turn on brightness to 60%
+
+```python
 controller.turn_on(60.0)
-controller.blink(count=3, on_ms=120, off_ms=120, level_percent=100.0)
+```
 
+Step 4: Blink for a notification
+
+```python
+controller.blink(count=3, on_ms=120, off_ms=120, level_percent=100.0)
+```
+
+Step 5: Use async notification manager
+
+```python
 blinker = NotificationBlinker(controller)
 blinker.start("chat-message", count=5, on_ms=80, off_ms=120)
 ```
 
-## CLI Usage
+## CLI Guide (Beginner Friendly)
 
-Try everything with the mock backend (no hardware needed):
+### 1) Check Current State
+
+With mock backend:
 
 ```bash
-# Show state
 backlit-kbd --mock info
-
-# Set by raw level
-backlit-kbd --mock set 2
-
-# Set by percentage
-backlit-kbd --mock percent 75
-
-# Blink for notification
-backlit-kbd --mock blink --count 4 --on-ms 100 --off-ms 100
 ```
 
-For a specific Linux device path:
+With real hardware backend:
 
 ```bash
-backlit-kbd --device-path /sys/class/leds/asus::kbd_backlight info
+backlit-kbd info
 ```
 
-## Examples
+### 2) Set Brightness by Raw Level
 
-- `examples/blink_notification.py` - Blink SOS in Morse code
-- `examples/brightness_wave.py` - Smooth wave animation
-- `examples/disco_light.py` - Disco-style random brightness
+With mock backend:
 
-Run with:
+```bash
+backlit-kbd --mock set 2
+```
+
+With real hardware backend:
+
+```bash
+backlit-kbd set 2
+```
+
+### 3) Set Brightness by Percentage
+
+With mock backend:
+
+```bash
+backlit-kbd --mock percent 75
+```
+
+With real hardware backend:
+
+```bash
+backlit-kbd percent 75
+```
+
+### 4) Increase and Decrease
+
+Increase by default step (`1`):
+
+```bash
+backlit-kbd --mock inc
+```
+
+Increase by custom step:
+
+```bash
+backlit-kbd --mock inc 2
+```
+
+Decrease by custom step:
+
+```bash
+backlit-kbd --mock dec 2
+```
+
+Real hardware equivalents:
+
+```bash
+backlit-kbd inc
+backlit-kbd inc 2
+backlit-kbd dec 2
+```
+
+### 5) Turn On and Off
+
+With mock backend:
+
+```bash
+backlit-kbd --mock on --percent 40
+backlit-kbd --mock off
+```
+
+With real hardware backend:
+
+```bash
+backlit-kbd on --percent 40
+backlit-kbd off
+```
+
+### 6) Blink Pattern (Synchronous)
+
+With mock backend:
+
+```bash
+backlit-kbd --mock blink --count 4 --on-ms 100 --off-ms 100 --level-percent 100
+```
+
+With real hardware backend:
+
+```bash
+backlit-kbd blink --count 4 --on-ms 100 --off-ms 100 --level-percent 100
+```
+
+### 7) Notification Blink (Async-style Command)
+
+With mock backend:
+
+```bash
+backlit-kbd --mock notify --name chat --count 5 --on-ms 80 --off-ms 120 --level-percent 100
+```
+
+With real hardware backend:
+
+```bash
+backlit-kbd notify --name chat --count 5 --on-ms 80 --off-ms 120 --level-percent 100
+```
+
+## Full CLI Commands
+
+Global options:
+- `--mock` Use in-memory backend (safe, no hardware writes)
+- `--device-path PATH` Optional advanced override for a specific sysfs device
+
+Commands:
+- `info`
+- `set <value>`
+- `percent <value>`
+- `inc [step]`
+- `dec [step]`
+- `on [--percent N]`
+- `off`
+- `blink [--count N --on-ms N --off-ms N --level-percent N]`
+- `notify [--name NAME --count N --on-ms N --off-ms N --level-percent N]`
+
+## Examples Folder
+
+Scripts:
+- `examples/blink_notification.py`
+- `examples/brightness_wave.py`
+- `examples/disco_light.py`
+
+Run them:
 
 ```bash
 python examples/blink_notification.py
+```
+
+```bash
 python examples/brightness_wave.py
+```
+
+```bash
 python examples/disco_light.py
 ```
 
-All examples automatically use the mock backend if hardware is unavailable.
-
-## API Reference
-
-- `create_controller(...)` returns a `BacklitKeyboardController`
-- `BacklitKeyboardController`: `get_state()`, `set_brightness(value)`, `set_percent(percent)`, `increase(step=1)`, `decrease(step=1)`, `turn_on(percent=100.0)`, `turn_off()`, `blink(...)`
-- `NotificationBlinker` manages named async blink notifications
-
 ## Testing
 
-Run all tests:
+Run tests:
 
 ```bash
-pytest
+python -m pytest
 ```
 
-## Release & Publish
+If you are using the project virtual environment:
 
-This repository ships with two GitHub Actions workflows:
+```bash
+.venv/bin/pytest
+```
 
-- `CI` (`.github/workflows/ci.yml`) runs tests on push and pull requests.
-- `Publish` (`.github/workflows/publish.yml`) builds and publishes to PyPI on release publish, version tags (`v*`), or manual trigger.
-- Workflows use `astral-sh/setup-uv` for package tooling and dependency management.
+## Troubleshooting
 
-Recommended setup for publishing:
+1. `Permission denied` on Linux real hardware mode:
+- You may need proper privileges/udev rules to write to sysfs.
 
-1. Create a PyPI project named `backlit-kbd`.
-2. Configure PyPI Trusted Publisher (OIDC) for this GitHub repository.
-3. Create a GitHub release or push a version tag like `v0.1.1`.
+2. No device found in real hardware mode:
+- Use `--mock` for learning/testing.
+- Or use `create_controller(fallback_to_mock=True)` in Python.
 
-## Troubleshooting & Permissions
+3. Want safe practice mode always:
+- Use `--mock` in CLI, or `force_mock=True` / `fallback_to_mock=True` in code.
 
-- Linux sysfs writes may require elevated permissions depending on distro/udev rules.
-- For learning and testing, use the mock backend (`--mock` or `fallback_to_mock=True`).
-- If no hardware backend is available and `fallback_to_mock=False`, backend creation raises `BackendUnavailableError`.
+## Release and Publish
+
+This repo has GitHub Actions workflows:
+- `CI` runs tests on push and pull request
+- `Publish` builds and publishes to PyPI
+- Uses `astral-sh/setup-uv`
+- Uses PyPI Trusted Publishing (OIDC)
+
+To publish a new version:
+1. Update version in `pyproject.toml`
+2. Create and push a tag like `v0.1.1`
+3. Or publish a GitHub release
 
 ## Support
 
-If this project helps you, you can support it here:
-
-- Buy me a coffee: https://buymeacoffee.com/itsmeadarsh
-- GitHub Sponsors (including company sponsorship): https://github.com/sponsors/itsmeadarsh2008
+- Buy Me a Coffee: https://buymeacoffee.com/itsmeadarsh
+- GitHub Sponsors (individual/company): https://github.com/sponsors/itsmeadarsh2008
 
 ## Contributing
 
-- Try the examples in `examples/` to get started.
-- Add your own experiment by copying an example and modifying it.
-- See `tests/` for API usage and edge cases.
+- Start with `examples/`
+- Check tests in `tests/`
+- Open issues and PRs
 
 ## License
 
