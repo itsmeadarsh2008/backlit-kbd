@@ -1,0 +1,31 @@
+[project]
+name = "backlit-kbd"
+version = "0.1.0"
+authors = [
+    { name = "Adarsh Gourab Mahalik", email = "gourabmahalikadarsh@gmail.com" }
+]
+description = "Python API for controlling keyboard backlight devices with notification blinking"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+	"pytest>=8.0.0",
+]
+
+[project.scripts]
+backlit-kbd = "backlit_kbd.cli:main"
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
